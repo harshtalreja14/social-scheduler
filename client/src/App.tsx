@@ -5,7 +5,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
 import Scheduler from "./pages/Scheduler";
-import AiComposer from "./pages/AiComposer";
+import AiComposer from "./pages/AIComposer";
 
 export default function App() {
     return (

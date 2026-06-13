@@ -207,7 +207,6 @@ const Scheduler = () => {
                 </ul>
               )}
             </div>
-
       </div>
     </div>
 
