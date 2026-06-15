@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { dummyGenerationData } from "../assets/assets";
 import { ArrowRightIcon, CalendarIcon, ClockIcon, HistoryIcon, Loader2Icon, Wand2Icon, XIcon } from "lucide-react";
 import { PLATFORMS } from "../assets/assets";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const AiComposer = () => {
   const [prompt, setPrompt] = useState("");
@@ -17,20 +18,70 @@ const AiComposer = () => {
   const [scheduledTime, setScheduledTime] = useState("");
   const [scheduling, setScheduling] = useState<any>(null);
 
-  const fetchGenerations = async() => {
-    setGenerations(dummyGenerationData);
+  const fetchGenerations = async () => {
+    try {
+      const { data } = await api.get("api/posts/generations");
+      setGenerations(data);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error?.message);
+    }
   }
 
   const handleGenerate = async () => {
+    if (!prompt) {
+      toast.error("Please enter a prompt");
+      return;
+    }
     setLoading(true);
-    setTimeout(() =>{
+    try {
+      const { data } = await api.post("/api/posts/generate", { prompt, tone, generateImage });
+      setGenerations([data, ...generations]);
+      setActiveScheduler(data);
+      toast.success("Content generated!");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error?.message);
+    } finally {
       setLoading(false);
-    }, 2000)
+    }
   }
 
   useEffect(() =>{
     fetchGenerations()
   }, [])
+
+  const handleSchedule = async () => {
+    if (!activeScheduler) return;
+    if (selectedPlatforms.length === 0) {
+      toast.error("Select at least one platform");
+      return;
+    }
+    if (!scheduledDate || !scheduledTime) {
+      toast.error("Select date and time");
+      return;
+    }
+
+    const scheduledFor = new Date(`${scheduledDate}T${scheduledTime}`).toISOString();
+    setScheduling(true);
+    try {
+      await api.post("/api/posts", {
+        content: activeScheduler.content,
+        mediaUrl: activeScheduler.mediaUrl,
+        mediaType: activeScheduler.mediaType,
+        platforms: selectedPlatforms,
+        scheduledFor,
+        status: "scheduled",
+      });
+      toast.success("AI Post scheduled!");
+      setActiveScheduler(null);
+      setSelectedPlatforms([]);
+      setScheduledDate("");
+      setScheduledTime("");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error?.message);
+    } finally {
+      setScheduling(false);
+    }
+  }
 
   
   const tones = ["Professional", "Creative", "Funny", "Minimalist", "Excited"]
@@ -186,7 +237,7 @@ const AiComposer = () => {
                     </div>
                   </div>
                 </div>
-                <button disabled={scheduling || !scheduledDate || !scheduledTime} onClick={() => setScheduling(true)} className="w-full flex items-center justify-center gap-2 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all text-white rounded-lg text-sm">
+                <button disabled={scheduling || !scheduledDate || !scheduledTime} onClick={handleSchedule} className="w-full flex items-center justify-center gap-2 py-3 bg-red-500 hover:bg-red-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all text-white rounded-lg text-sm">
                   {scheduling ? (
                     <><Loader2Icon className="size-4 animate-spin" /> Scheduling...</>
                   ) : (

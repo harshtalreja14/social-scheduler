@@ -38,15 +38,10 @@ export const loginUser = async(req: Request, res: Response): Promise<void> => {
         const {email, password} = req.body;
         const user = await User.findOne({email});
         if(user && (await bcrypt.compare(password, user.password))){
-            res.json({message: "User already exists"});
+            res.json({_id: user._id, name: user.name, email: user.email, token: generateToken(user._id.toString())});
             return;
         }
-        if(user){
-            res.status(201).json({_id: user._id, name: user.name, email: user.email, token: generateToken(user._id.toString())});
-        }
-        else{
-            res.status(401).json({message: "Invalid email or password"})
-        }
+        res.status(401).json({message: "Invalid email or password"});
     } catch (error: any) {
         res.status(500).json({message: error?.message || "Invalid user data"});
     }

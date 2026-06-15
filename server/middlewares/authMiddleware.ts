@@ -12,7 +12,7 @@ export const protect = async(req: AuthRequest, res: Response, next: NextFunction
     if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
         try {
             token = req.headers.authorization.split(" ")[1];
-            const decoded: any = jwt.verify(token, process.env.ZERNIO_API_KEY!);
+            const decoded: any = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
             req.user = await User.findById(decoded.id).select("-password");
             next();
         } catch (error: any) {

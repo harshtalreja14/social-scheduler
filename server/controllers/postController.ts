@@ -103,7 +103,12 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
                             }
                         },
                     )
-                    const generationId = leoResponse.data.generate.generationId;
+                    const generationId = leoResponse.data?.sdGenerationJob?.generationId 
+                        || leoResponse.data?.generate?.generationId
+                        || leoResponse.data?.generationId;
+                    if (!generationId) {
+                        throw new Error("No generationId in Leonardo response: " + JSON.stringify(leoResponse.data));
+                    }
                     const tempUrl = await pollLeonardoJob(generationId, leonardoKey);
 
                     // Upload to Cloudinary for persistence
