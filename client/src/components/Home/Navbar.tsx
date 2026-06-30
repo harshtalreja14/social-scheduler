@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRightIcon } from "lucide-react";
-import { useAuth } from "../../context/authcontext";
+import { useAuth } from "../../context/AuthContext";
+
 
 export default function Navbar() {
     const { user } = useAuth();

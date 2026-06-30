@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Sidebar from './Sidebar'
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { MenuIcon } from 'lucide-react';
-import { useAuth } from '../context/authcontext';
+import { useAuth } from '../context/AuthContext';
 
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",

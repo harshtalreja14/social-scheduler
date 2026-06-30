@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PLATFORMS } from '../assets/assets';
 import { PlusIcon } from 'lucide-react';
 import AccountList from '../components/AccountList';
