@@ -30,15 +30,18 @@ app.use("/api/accounts", accountRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/activity", activityRouter);
 
-// Initialize scheduler
-initScheduler();
-
 // Global Error Handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) =>{
     console.error(err);
     res.status(500).send(err?.response?.data?.message || err?.message);
 });
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-});
+// Only run scheduler and listen locally (not on Vercel serverless)
+if (process.env.VERCEL !== "1") {
+    initScheduler();
+    app.listen(port, () => {
+        console.log(`Server is running at http://localhost:${port}`);
+    });
+}
+
+export default app;
